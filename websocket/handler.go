@@ -8,14 +8,9 @@ import (
 // 维护所有的handler
 // DefaultHandlers 默认的 handler 结构，管理所有支持的 handler 类型
 var DefaultHandlers struct {
-	Ready       ReadyHandler
-	ErrorNotify ErrorNotifyHandler
-	Plain       PlainEventHandler
-
-	//Guild       GuildEventHandler
-	//GuildMember GuildMemberEventHandler
-	//Channel     ChannelEventHandler
-
+	Ready               ReadyHandler
+	ErrorNotify         ErrorNotifyHandler
+	Plain               PlainEventHandler
 	Message             MessageEventHandler
 	MessageReaction     MessageReactionEventHandler
 	ATMessage           ATMessageEventHandler
@@ -24,16 +19,17 @@ var DefaultHandlers struct {
 	MessageDelete       MessageDeleteEventHandler
 	PublicMessageDelete PublicMessageDeleteEventHandler
 	DirectMessageDelete DirectMessageDeleteEventHandler
-
-	Audio AudioEventHandler
-	//
-	//Thread     ThreadEventHandler
-	//Post       PostEventHandler
-	//Reply      ReplyEventHandler
-	//ForumAudit ForumAuditEventHandler
-
-	Interaction InteractionEventHandler
+	AloneMessage        AloneMessageHandler
+	GroupAtMessage      GroupAtMessageHandler
+	Audio               AudioEventHandler
+	Interaction         InteractionEventHandler
 }
+
+// 单聊消息
+type AloneMessageHandler func(event *WSPayload, data *WSAloneMessage) error
+
+// 群聊at消息
+type GroupAtMessageHandler func(event *WSPayload, data *WSGroupAtMessage) error
 
 // ReadyHandler 可以处理 ws 的 ready 事件
 type ReadyHandler func(event *WSPayload, data *WSReadyData)
@@ -91,6 +87,9 @@ type eventParseFunc func(event *WSPayload, message []byte) error
 
 var EventParseFuncMap = map[OPCode]map[EventType]eventParseFunc{
 	WSDispatchEvent: {
+		//暂且合并
+		EventC2cMessageCreate:     messageHandler,
+		EventGroupAtMessageCreate: messageHandler,
 
 		EventMessageCreate: messageHandler,
 		EventMessageDelete: messageDeleteHandler,
@@ -142,6 +141,28 @@ func messageHandler(payload *WSPayload, message []byte) error {
 	}
 	if DefaultHandlers.Message != nil {
 		return DefaultHandlers.Message(payload, data)
+	}
+	return nil
+}
+
+func aloneMessageHandler(payload *WSPayload, message []byte) error {
+	data := &WSAloneMessage{}
+	if err := ParseData(message, data); err != nil {
+		return err
+	}
+	if DefaultHandlers.AloneMessage != nil {
+		return DefaultHandlers.AloneMessage(payload, data)
+	}
+	return nil
+}
+
+func groupAtMessage(payload *WSPayload, message []byte) error {
+	data := &WSGroupAtMessage{}
+	if err := ParseData(message, data); err != nil {
+		return err
+	}
+	if DefaultHandlers.GroupAtMessage != nil {
+		return DefaultHandlers.GroupAtMessage(payload, data)
 	}
 	return nil
 }

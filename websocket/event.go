@@ -230,6 +230,12 @@ func Register() Intent {
 	//迟早优化
 	for _, h := range EventHandlers {
 		switch handle := h.(type) {
+		case AloneMessageHandler:
+			DefaultHandlers.AloneMessage = handle
+			i = i | EventToIntent(EventC2cMessageCreate)
+		case GroupAtMessageHandler:
+			DefaultHandlers.GroupAtMessage = handle
+			i = i | EventToIntent(EventGroupAtMessageCreate)
 		case ReadyHandler:
 			DefaultHandlers.Ready = handle
 		case ErrorNotifyHandler:

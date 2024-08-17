@@ -3,15 +3,14 @@ package v1
 import (
 	"context"
 	"encoding/json"
+	"github.com/Yyjccc/qqbotsdk/entry"
+	"github.com/Yyjccc/qqbotsdk/util"
 	"strconv"
-
-	"github.com/tencent-connect/botgo/dto"
-	"github.com/tencent-connect/botgo/errs"
 )
 
 // CreateMessageReaction 对消息发表表情表态
 func (o *openAPI) CreateMessageReaction(ctx context.Context,
-	channelID, messageID string, emoji dto.Emoji) error {
+	channelID, messageID string, emoji entry.Emoji) error {
 	_, err := o.request(ctx).
 		SetPathParam("channel_id", channelID).
 		SetPathParam("message_id", messageID).
@@ -26,7 +25,7 @@ func (o *openAPI) CreateMessageReaction(ctx context.Context,
 
 // DeleteOwnMessageReaction 删除自己的消息表情表态
 func (o *openAPI) DeleteOwnMessageReaction(ctx context.Context,
-	channelID, messageID string, emoji dto.Emoji) error {
+	channelID, messageID string, emoji entry.Emoji) error {
 	_, err := o.request(ctx).
 		SetPathParam("channel_id", channelID).
 		SetPathParam("message_id", messageID).
@@ -40,10 +39,10 @@ func (o *openAPI) DeleteOwnMessageReaction(ctx context.Context,
 }
 
 // GetMessageReactionUsers 获取消息表情表态用户列表
-func (o *openAPI) GetMessageReactionUsers(ctx context.Context, channelID, messageID string, emoji dto.Emoji,
-	pager *dto.MessageReactionPager) (*dto.MessageReactionUsers, error) {
+func (o *openAPI) GetMessageReactionUsers(ctx context.Context, channelID, messageID string, emoji entry.Emoji,
+	pager *util.MessageReactionPager) (*entry.MessageReactionUsers, error) {
 	if pager == nil {
-		return nil, errs.ErrPagerIsNil
+		return nil, util.ErrPagerIsNil
 	}
 	resp, err := o.request(ctx).
 		SetPathParam("channel_id", channelID).
@@ -56,7 +55,7 @@ func (o *openAPI) GetMessageReactionUsers(ctx context.Context, channelID, messag
 		return nil, err
 	}
 
-	messageReactionUsers := &dto.MessageReactionUsers{}
+	messageReactionUsers := &entry.MessageReactionUsers{}
 	if err := json.Unmarshal(resp.Body(), &messageReactionUsers); err != nil {
 		return nil, err
 	}

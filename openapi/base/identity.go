@@ -1,4 +1,4 @@
-package openapi
+package base
 
 import "github.com/Yyjccc/qqbotsdk/websocket"
 

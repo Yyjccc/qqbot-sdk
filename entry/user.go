@@ -5,6 +5,8 @@ type User struct {
 	Username         string `json:"username"`
 	Avatar           string `json:"avatar"`
 	Bot              bool   `json:"bot"`
+	MemberOpenId     string `json:"member_openid"`      //群成员id
+	UserOpenId       string `json:"user_openid"`        //用户id
 	UnionOpenID      string `json:"union_openid"`       // 特殊关联应用的 openid
 	UnionUserAccount string `json:"union_user_account"` // 机器人关联的用户信息，与union_openid关联的应用是同一个
 }

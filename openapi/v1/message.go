@@ -4,17 +4,16 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-
-	"github.com/tencent-connect/botgo/dto"
-	"github.com/tencent-connect/botgo/errs"
-	"github.com/tencent-connect/botgo/openapi"
+	"github.com/Yyjccc/qqbotsdk/entry"
+	"github.com/Yyjccc/qqbotsdk/openapi"
+	"github.com/Yyjccc/qqbotsdk/util"
 	"github.com/tidwall/gjson"
 )
 
 // Message 拉取单条消息
-func (o *openAPI) Message(ctx context.Context, channelID string, messageID string) (*dto.Message, error) {
+func (o *openAPI) Message(ctx context.Context, channelID string, messageID string) (*entry.Message, error) {
 	resp, err := o.request(ctx).
-		SetResult(dto.Message{}).
+		SetResult(entry.Message{}).
 		SetPathParam("channel_id", channelID).
 		SetPathParam("message_id", messageID).
 		Get(o.getURL(messageURI))
@@ -23,7 +22,7 @@ func (o *openAPI) Message(ctx context.Context, channelID string, messageID strin
 	}
 
 	// 兼容处理
-	result := resp.Result().(*dto.Message)
+	result := resp.Result().(*entry.Message)
 	if result.ID == "" {
 		body := gjson.Get(resp.String(), "message")
 		if err := json.Unmarshal([]byte(body.String()), result); err != nil {
@@ -34,9 +33,9 @@ func (o *openAPI) Message(ctx context.Context, channelID string, messageID strin
 }
 
 // Messages 拉取消息列表
-func (o *openAPI) Messages(ctx context.Context, channelID string, pager *dto.MessagesPager) ([]*dto.Message, error) {
+func (o *openAPI) Messages(ctx context.Context, channelID string, pager *util.MessagesPager) ([]*entry.Message, error) {
 	if pager == nil {
-		return nil, errs.ErrPagerIsNil
+		return nil, util.ErrPagerIsNil
 	}
 	resp, err := o.request(ctx).
 		SetPathParam("channel_id", channelID).
@@ -46,7 +45,7 @@ func (o *openAPI) Messages(ctx context.Context, channelID string, pager *dto.Mes
 		return nil, err
 	}
 
-	messages := make([]*dto.Message, 0)
+	messages := make([]*entry.Message, 0)
 	if err := json.Unmarshal(resp.Body(), &messages); err != nil {
 		return nil, err
 	}
@@ -55,9 +54,9 @@ func (o *openAPI) Messages(ctx context.Context, channelID string, pager *dto.Mes
 }
 
 // PostMessage 发消息
-func (o *openAPI) PostMessage(ctx context.Context, channelID string, msg *dto.MessageToCreate) (*dto.Message, error) {
+func (o *openAPI) PostMessage(ctx context.Context, channelID string, msg *entry.MessageToCreate) (*entry.Message, error) {
 	resp, err := o.request(ctx).
-		SetResult(dto.Message{}).
+		SetResult(entry.Message{}).
 		SetPathParam("channel_id", channelID).
 		SetBody(msg).
 		Post(o.getURL(messagesURI))
@@ -65,14 +64,14 @@ func (o *openAPI) PostMessage(ctx context.Context, channelID string, msg *dto.Me
 		return nil, err
 	}
 
-	return resp.Result().(*dto.Message), nil
+	return resp.Result().(*entry.Message), nil
 }
 
 // PatchMessage 编辑消息
 func (o *openAPI) PatchMessage(ctx context.Context,
-	channelID string, messageID string, msg *dto.MessageToCreate) (*dto.Message, error) {
+	channelID string, messageID string, msg *entry.MessageToCreate) (*entry.Message, error) {
 	resp, err := o.request(ctx).
-		SetResult(dto.Message{}).
+		SetResult(entry.Message{}).
 		SetPathParam("channel_id", channelID).
 		SetPathParam("message_id", messageID).
 		SetBody(msg).
@@ -81,7 +80,7 @@ func (o *openAPI) PatchMessage(ctx context.Context,
 		return nil, err
 	}
 
-	return resp.Result().(*dto.Message), nil
+	return resp.Result().(*entry.Message), nil
 }
 
 // RetractMessage 撤回消息
@@ -101,21 +100,21 @@ func (o *openAPI) RetractMessage(ctx context.Context,
 
 // PostSettingGuide 发送设置引导消息, atUserID为要at的用户
 func (o *openAPI) PostSettingGuide(ctx context.Context,
-	channelID string, atUserIDs []string) (*dto.Message, error) {
+	channelID string, atUserIDs []string) (*entry.Message, error) {
 	var content string
 	for _, userID := range atUserIDs {
 		content += fmt.Sprintf("<@%s>", userID)
 	}
-	msg := &dto.SettingGuideToCreate{
+	msg := &entry.SettingGuideToCreate{
 		Content: content,
 	}
 	resp, err := o.request(ctx).
-		SetResult(dto.Message{}).
+		SetResult(entry.Message{}).
 		SetPathParam("channel_id", channelID).
 		SetBody(msg).
 		Post(o.getURL(settingGuideURI))
 	if err != nil {
 		return nil, err
 	}
-	return resp.Result().(*dto.Message), nil
+	return resp.Result().(*entry.Message), nil
 }

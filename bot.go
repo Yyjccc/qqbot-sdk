@@ -1,4 +1,4 @@
-package sdk
+package main
 
 import (
 	"github.com/Yyjccc/qqbotsdk/entry"
@@ -7,6 +7,10 @@ import (
 	v1 "github.com/Yyjccc/qqbotsdk/openapi/v1"
 	"github.com/Yyjccc/qqbotsdk/util"
 	"github.com/Yyjccc/qqbotsdk/websocket"
+)
+
+var (
+	BotToken = entry.BotToken
 )
 
 func init() {

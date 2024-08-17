@@ -2,7 +2,7 @@ package entry
 
 import (
 	"fmt"
-	"github.com/tencent-connect/botgo/log"
+	"github.com/Yyjccc/qqbotsdk/util"
 	"gopkg.in/yaml.v3"
 	"io/ioutil"
 )
@@ -64,11 +64,11 @@ func (t *Token) LoadFromConfig(file string) error {
 	}
 	content, err := ioutil.ReadFile(file)
 	if err != nil {
-		log.Errorf("read token from file failed, err: %v", err)
+		util.Errorf("read token from file failed, err: %v", err)
 		return err
 	}
 	if err = yaml.Unmarshal(content, &conf); err != nil {
-		log.Errorf("parse config failed, err: %v", err)
+		util.Errorf("parse config failed, err: %v", err)
 		return err
 	}
 	t.AppID = conf.AppID

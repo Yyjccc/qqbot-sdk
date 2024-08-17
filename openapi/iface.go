@@ -1,11 +1,11 @@
 package openapi
 
 import (
-	"QueziyaBot/sdk/entry"
-	"QueziyaBot/sdk/util"
-	"QueziyaBot/sdk/websocket"
 	"context"
-
+	"github.com/Yyjccc/qqbotsdk/entry"
+	"github.com/Yyjccc/qqbotsdk/openapi/base"
+	"github.com/Yyjccc/qqbotsdk/util"
+	"github.com/Yyjccc/qqbotsdk/websocket"
 	"time"
 )
 
@@ -21,9 +21,9 @@ const (
 type OpenAPI interface {
 	Base
 	WebsocketAPI
-	UserAPI
+	//UserAPI
 	MessageAPI
-	AudioAPI
+	//AudioAPI
 	PinsAPI
 	MessageReactionAPI
 	WebhookAPI
@@ -224,9 +224,9 @@ type InteractionAPI interface {
 
 // WebhookAPI http 事件网关相关接口
 type WebhookAPI interface {
-	CreateSession(ctx context.Context, identity HTTPIdentity) (*HTTPReady, error)
-	CheckSessions(ctx context.Context) ([]*HTTPSession, error)
-	SessionList(ctx context.Context) ([]*HTTPSession, error)
+	CreateSession(ctx context.Context, identity base.HTTPIdentity) (*base.HTTPReady, error)
+	CheckSessions(ctx context.Context) ([]*base.HTTPSession, error)
+	SessionList(ctx context.Context) ([]*base.HTTPSession, error)
 	RemoveSession(ctx context.Context, sessionID string) error
 }
 

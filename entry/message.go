@@ -4,10 +4,11 @@ package entry
 type Message struct {
 	// 消息ID
 	ID string `json:"id"`
-	// 子频道ID
-	ChannelID string `json:"channel_id"`
-	// 频道ID
-	GuildID string `json:"guild_id"`
+	//// 子频道ID
+	//ChannelID string `json:"channel_id"`
+	//// 频道ID
+	//GuildID string `json:"guild_id"`
+	GroupOpenID string `json:"group_openid"`
 	// 内容
 	Content string `json:"content"`
 	// 发送时间
@@ -60,7 +61,12 @@ type EmbedField struct {
 
 // MessageAttachment 附件定义
 type MessageAttachment struct {
-	URL string `json:"url"`
+	ContentType string `json:"content_type"` //文件类型，"image/jpeg","image/png","image/gif"，"file"，"video/mp4"，"voice"
+	FileName    string `json:"filename"`
+	Size        int    `json:"size"` //文件大小
+	Height      int    `json:"height"`
+	Width       int    `json:"width"`
+	URL         string `json:"url"`
 }
 
 // MessageReactionUsers 消息表情表态用户列表

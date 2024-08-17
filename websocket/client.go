@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/Yyjccc/qqbotsdk/util"
 	wss "github.com/gorilla/websocket" // 是一个流行的 websocket 客户端，服务端实现
-
 	"os"
 	"os/signal"
 	"syscall"

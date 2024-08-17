@@ -5,23 +5,20 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/Yyjccc/qqbotsdk/entry"
+	"github.com/Yyjccc/qqbotsdk/openapi"
+	"github.com/Yyjccc/qqbotsdk/util"
+	"github.com/go-resty/resty/v2"
 	"net"
 	"net/http"
 	"time"
-
-	"github.com/go-resty/resty/v2" // resty 是一个优秀的 rest api 客户端，可以极大的减少开发基于 rest 标准接口求请求的封装工作量
-	"github.com/tencent-connect/botgo/errs"
-	"github.com/tencent-connect/botgo/log"
-	"github.com/tencent-connect/botgo/openapi"
-	"github.com/tencent-connect/botgo/token"
-	"github.com/tencent-connect/botgo/version"
 )
 
 // MaxIdleConns 默认指定空闲连接池大小
 const MaxIdleConns = 3000
 
 type openAPI struct {
-	token   *token.Token
+	token   *entry.Token
 	timeout time.Duration
 
 	sandbox     bool   // 请求沙箱环境
@@ -47,7 +44,7 @@ func (o *openAPI) TraceID() string {
 }
 
 // Setup 生成一个实例
-func (o *openAPI) Setup(token *token.Token, inSandbox bool) openapi.OpenAPI {
+func (o *openAPI) Setup(token *entry.Token, inSandbox bool) openapi.OpenAPI {
 	api := &openAPI{
 		token:   token,
 		timeout: 3 * time.Second,
@@ -73,12 +70,12 @@ func (o *openAPI) Transport(ctx context.Context, method, url string, body interf
 func (o *openAPI) setupClient() {
 	o.restyClient = resty.New().
 		SetTransport(createTransport(nil, MaxIdleConns)). // 自定义 transport
-		SetLogger(log.DefaultLogger).
+		SetLogger(util.DefaultLogger).
 		SetDebug(o.debug).
 		SetTimeout(o.timeout).
 		SetAuthToken(o.token.GetString()).
 		SetAuthScheme(string(o.token.Type)).
-		SetHeader("User-Agent", version.String()).
+		SetHeader("User-Agent", openapi.String()).
 		SetPreRequestHook(
 			func(client *resty.Client, request *http.Request) error {
 				// 执行请求前过滤器
@@ -89,7 +86,7 @@ func (o *openAPI) setupClient() {
 		// 设置请求之后的钩子，打印日志，判断状态码
 		OnAfterResponse(
 			func(client *resty.Client, resp *resty.Response) error {
-				log.Infof("%v", respInfo(resp))
+				util.Infof("%v", respInfo(resp))
 				// 执行请求后过滤器
 				if err := openapi.DoRespFilterChains(resp.Request.RawRequest, resp.RawResponse); err != nil {
 					return err
@@ -98,7 +95,7 @@ func (o *openAPI) setupClient() {
 				o.lastTraceID = traceID
 				// 非成功含义的状态码，需要返回 error 供调用方识别
 				if !openapi.IsSuccessStatus(resp.StatusCode()) {
-					return errs.New(resp.StatusCode(), string(resp.Body()), traceID)
+					return util.New(resp.StatusCode(), string(resp.Body()), traceID)
 				}
 				return nil
 			},

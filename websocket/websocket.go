@@ -55,5 +55,6 @@ func PanicHandler(e interface{}, session *Session) {
 
 // RegisterHandlers 兼容老版本的注册方式
 func RegisterHandlers(handlers ...interface{}) Intent {
-	return RegisterHandlers(handlers...)
+	RegisterHandler(handlers...)
+	return Register()
 }

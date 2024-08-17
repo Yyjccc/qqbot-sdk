@@ -3,25 +3,24 @@ package v1
 import (
 	"context"
 	"encoding/json"
-
-	"github.com/tencent-connect/botgo/dto"
+	"github.com/Yyjccc/qqbotsdk/openapi/base"
 )
 
 // CreateSession 创建一个新的 http 事件回调
-func (o *openAPI) CreateSession(ctx context.Context, identity dto.HTTPIdentity) (*dto.HTTPReady, error) {
+func (o *openAPI) CreateSession(ctx context.Context, identity base.HTTPIdentity) (*base.HTTPReady, error) {
 	resp, err := o.request(ctx).
-		SetResult(dto.HTTPReady{}).
+		SetResult(base.HTTPReady{}).
 		SetBody(identity).
 		Post(o.getURL(httpSessionsURI))
 	if err != nil {
 		return nil, err
 	}
 
-	return resp.Result().(*dto.HTTPReady), nil
+	return resp.Result().(*base.HTTPReady), nil
 }
 
 // CheckSessions 定期检查 http 回调 session 的健康情况，服务端会自动 resume 非活跃状态的 session
-func (o *openAPI) CheckSessions(ctx context.Context) ([]*dto.HTTPSession, error) {
+func (o *openAPI) CheckSessions(ctx context.Context) ([]*base.HTTPSession, error) {
 	resp, err := o.request(ctx).
 		SetQueryParam("action", "check").
 		Patch(o.getURL(httpSessionsURI))
@@ -29,7 +28,7 @@ func (o *openAPI) CheckSessions(ctx context.Context) ([]*dto.HTTPSession, error)
 		return nil, err
 	}
 
-	sessions := make([]*dto.HTTPSession, 0)
+	sessions := make([]*base.HTTPSession, 0)
 	if err := json.Unmarshal(resp.Body(), &sessions); err != nil {
 		return nil, err
 	}
@@ -38,14 +37,14 @@ func (o *openAPI) CheckSessions(ctx context.Context) ([]*dto.HTTPSession, error)
 }
 
 // GetActiveSessionList 拉取活跃的 http session 列表
-func (o *openAPI) SessionList(ctx context.Context) ([]*dto.HTTPSession, error) {
+func (o *openAPI) SessionList(ctx context.Context) ([]*base.HTTPSession, error) {
 	resp, err := o.request(ctx).
 		Get(o.getURL(httpSessionsURI))
 	if err != nil {
 		return nil, err
 	}
 
-	sessions := make([]*dto.HTTPSession, 0)
+	sessions := make([]*base.HTTPSession, 0)
 	if err := json.Unmarshal(resp.Body(), &sessions); err != nil {
 		return nil, err
 	}
