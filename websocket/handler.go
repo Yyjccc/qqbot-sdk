@@ -19,11 +19,14 @@ var DefaultHandlers struct {
 	MessageDelete       MessageDeleteEventHandler
 	PublicMessageDelete PublicMessageDeleteEventHandler
 	DirectMessageDelete DirectMessageDeleteEventHandler
-	AloneMessage        AloneMessageHandler
-	GroupAtMessage      GroupAtMessageHandler
+	AloneMessage        MessageHandler
+	GroupAtMessage      MessageHandler
 	Audio               AudioEventHandler
 	Interaction         InteractionEventHandler
 }
+
+// 单聊和群聊
+type MessageHandler func(event *WSPayload, data *WSMessageData) error
 
 // 单聊消息
 type AloneMessageHandler func(event *WSPayload, data *WSMessageData) error

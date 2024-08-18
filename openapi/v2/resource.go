@@ -1,4 +1,4 @@
-package v1
+package v2
 
 import (
 	"fmt"
@@ -13,6 +13,10 @@ type uri string
 
 // 目前提供的接口的 uri
 const (
+	replyTextAloneURI   uri = "/v2/users/{openid}/messages"
+	replyTextGroupURI   uri = "/v2/groups/{group_openid}/messages"
+	uploadMediaAloneURI uri = "/v2/users/{openid}/files"
+	uploadMediaGroupURI uri = "/v2/groups/{group_openid}/files"
 	guildURI            uri = "/guilds/{guild_id}"
 	guildMembersURI     uri = "/guilds/{guild_id}/members"
 	guildMemberURI      uri = "/guilds/{guild_id}/members/{user_id}"

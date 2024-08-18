@@ -1,6 +1,5 @@
 package qqbot
 
-//
 //func main() {
 //	token := BotToken(config.APPID, config.APP_TOKEN)
 //	api := NewSandboxOpenAPI(token).WithTimeout(3 * time.Second)

@@ -1,22 +1,24 @@
-## qqbot-sdk
+package main
 
-- qq官方机器的sdk
-- 参考官方sdk
-- 删去频道相关api
+import (
+	"context"
+	"github.com/Yyjccc/qqbotsdk/config"
+	"github.com/Yyjccc/qqbotsdk/entry"
+	"github.com/Yyjccc/qqbotsdk/manager"
+	"github.com/Yyjccc/qqbotsdk/openapi"
+	v2 "github.com/Yyjccc/qqbotsdk/openapi/v2"
+	"github.com/Yyjccc/qqbotsdk/send"
+	"github.com/Yyjccc/qqbotsdk/util"
 
-迁移v2 版本 openapi
+	"github.com/Yyjccc/qqbotsdk/websocket"
+	"log"
+	"time"
+)
 
-完成的主要接口：
-（群聊/单聊）
-1. 上传富文本信息
-2. 回复富文本消息
-3. 回复文本消息
-
-添加对单聊和群聊的事件订阅
-
-使用：
-```go
-    token := entry.BotToken(config.APPID, config.APP_TOKEN)
+func main() {
+	v2.Setup()
+	websocket.Setup()
+	token := entry.BotToken(config.APPID, config.APP_TOKEN)
 	api := NewSandboxOpenAPI(token).WithTimeout(3 * time.Second)
 	ctx := context.Background()
 	ws, err := api.WS(ctx, nil, "")
@@ -47,10 +49,14 @@ func AloneMessage(ctx context.Context, api openapi.OpenAPI) websocket.MessageHan
 		if err != nil {
 			util.Errorf(err.Error())
 		}
-		util.Infof("发送消息id: %v", rae.Id)
+		util.Infof("发送消息id: %v", rae)
 		return err
 	}
 }
-```
 
-由于基于官方sdk ，有些结构体可能重复
+func NewSandboxOpenAPI(token *entry.Token) openapi.OpenAPI {
+	return openapi.DefaultImpl.Setup(token, true)
+}
+func NewSessionManager() manager.SessionManager {
+	return manager.DefaultSessionManager
+}

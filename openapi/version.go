@@ -12,6 +12,7 @@ type (
 // 接口版本，后续增加版本直接直接增加新的常量
 const (
 	APIv1 APIVersion = 1 + iota
+	APIv2 APIVersion = 2 + iota
 	_
 )
 

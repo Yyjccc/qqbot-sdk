@@ -4,7 +4,7 @@ import (
 	"github.com/Yyjccc/qqbotsdk/entry"
 	"github.com/Yyjccc/qqbotsdk/manager"
 	"github.com/Yyjccc/qqbotsdk/openapi"
-	v1 "github.com/Yyjccc/qqbotsdk/openapi/v1"
+	v2 "github.com/Yyjccc/qqbotsdk/openapi/v2"
 	"github.com/Yyjccc/qqbotsdk/util"
 	"github.com/Yyjccc/qqbotsdk/websocket"
 )
@@ -14,7 +14,7 @@ var (
 )
 
 func init() {
-	v1.Setup()        // 注册 v1 接口
+	v2.Setup()        // 注册 v1 接口
 	websocket.Setup() // 注册 websocket client 实现
 }
 

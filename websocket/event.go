@@ -227,15 +227,19 @@ var (
 func Register() Intent {
 	var i Intent = 0
 	//计算 Intent值
-	//迟早优化
+	//默认单聊和群聊绑定在一起
 	for _, h := range EventHandlers {
 		switch handle := h.(type) {
-		case AloneMessageHandler:
+		case MessageHandler:
 			DefaultHandlers.AloneMessage = handle
-			i = i | EventToIntent(EventC2cMessageCreate)
-		case GroupAtMessageHandler:
 			DefaultHandlers.GroupAtMessage = handle
-			i = i | EventToIntent(EventGroupAtMessageCreate)
+			i = i | EventToIntent(EventC2cMessageCreate) | EventToIntent(EventGroupAtMessageCreate)
+		//case AloneMessageHandler:
+		//	DefaultHandlers.AloneMessage = handle
+		//	i = i | EventToIntent(EventC2cMessageCreate)
+		//case GroupAtMessageHandler:
+		//	DefaultHandlers.GroupAtMessage = handle
+		//	i = i | EventToIntent(EventGroupAtMessageCreate)
 		case ReadyHandler:
 			DefaultHandlers.Ready = handle
 		case ErrorNotifyHandler:
@@ -283,7 +287,6 @@ func Register() Intent {
 }
 
 func RegisterHandler(handlers ...interface{}) {
-
 	for _, h := range handlers {
 		EventHandlers = append(EventHandlers, h)
 	}

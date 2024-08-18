@@ -5,7 +5,6 @@ import (
 	"github.com/Yyjccc/qqbotsdk/entry"
 	"github.com/Yyjccc/qqbotsdk/util"
 	"github.com/Yyjccc/qqbotsdk/websocket"
-
 	"time"
 )
 

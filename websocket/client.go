@@ -115,7 +115,7 @@ func (c *Client) Listening() error {
 // Write 往 ws 写入数据
 func (c *Client) Write(message *WSPayload) error {
 	m, _ := json.Marshal(message)
-	util.Infof("%s write %s message, %v", c.session, OPMeans(message.OPCode), string(m))
+	//util.Infof("%s write %s message, %v", c.session, OPMeans(message.OPCode), string(m))
 
 	if err := c.conn.WriteMessage(wss.TextMessage, m); err != nil {
 		util.Errorf("%s WriteMessage failed, %v", c.session, err)

@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/Yyjccc/qqbotsdk/entry"
 	"github.com/Yyjccc/qqbotsdk/openapi/base"
+	"github.com/Yyjccc/qqbotsdk/send"
 	"github.com/Yyjccc/qqbotsdk/util"
 	"github.com/Yyjccc/qqbotsdk/websocket"
 	"time"
@@ -21,13 +22,14 @@ const (
 type OpenAPI interface {
 	Base
 	WebsocketAPI
+	ReplyAPI
 	//UserAPI
-	MessageAPI
+	//MessageAPI
 	//AudioAPI
-	PinsAPI
-	MessageReactionAPI
-	WebhookAPI
-	InteractionAPI
+	//PinsAPI
+	//MessageReactionAPI
+	//WebhookAPI
+	//InteractionAPI
 }
 
 // Base 基础能力接口
@@ -40,6 +42,14 @@ type Base interface {
 	Transport(ctx context.Context, method, url string, body interface{}) ([]byte, error)
 	// TraceID 返回上一次请求的 trace id
 	TraceID() string
+}
+
+// 回复消息接口
+type ReplyAPI interface {
+	//回复简单的文本消息
+	ReplyTextMessageByRaw(ctx context.Context, reply string, wrapper *send.RawMessageWrapper) (*send.ReplyStatus, error)
+	//回复富媒体
+	ReplyMediaMessageByRae(ctx context.Context, url string, mediaType send.MediaType, wrapper *send.RawMessageWrapper) (*send.MediaReplyStatus, error)
 }
 
 // WebsocketAPI websocket 接入地址
@@ -63,6 +73,11 @@ type MessageAPI interface {
 	RetractMessage(ctx context.Context, channelID, msgID string, options ...RetractMessageOption) error
 	// PostSettingGuide 发送设置引导
 	PostSettingGuide(ctx context.Context, channelID string, atUserIDs []string) (*entry.Message, error)
+}
+
+type Media interface {
+	//上传富媒体前需要先调用此方法上传文件
+	UploadMediaInfo(ctx context.Context, url string, mediaType send.MediaType, wrapper *send.RawMessageWrapper) (*send.MediaReplyStatus, error)
 }
 
 // GuildAPI guild 相关接口

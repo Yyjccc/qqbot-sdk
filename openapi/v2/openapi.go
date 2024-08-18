@@ -1,5 +1,4 @@
-// Package v1 是 openapi v1 版本的实现。
-package v1
+package v2
 
 import (
 	"context"
@@ -30,12 +29,12 @@ type openAPI struct {
 
 // Setup 注册
 func Setup() {
-	openapi.Register(openapi.APIv1, &openAPI{})
+	openapi.Register(openapi.APIv2, &openAPI{})
 }
 
 // Version 创建当前版本
 func (o *openAPI) Version() openapi.APIVersion {
-	return openapi.APIv1
+	return openapi.APIv2
 }
 
 // TraceID 获取 lastTraceID id
