@@ -18,7 +18,7 @@ const (
 // 回复后消息发送状态
 type ReplyStatus struct {
 	Id        string `json:"id"`
-	Timestamp int    `json:"timestamp"`
+	Timestamp string `json:"timestamp"`
 }
 
 // 发送回复消息
