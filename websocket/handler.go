@@ -26,10 +26,10 @@ var DefaultHandlers struct {
 }
 
 // 单聊消息
-type AloneMessageHandler func(event *WSPayload, data *WSAloneMessage) error
+type AloneMessageHandler func(event *WSPayload, data *WSMessageData) error
 
 // 群聊at消息
-type GroupAtMessageHandler func(event *WSPayload, data *WSGroupAtMessage) error
+type GroupAtMessageHandler func(event *WSPayload, data *WSMessageData) error
 
 // ReadyHandler 可以处理 ws 的 ready 事件
 type ReadyHandler func(event *WSPayload, data *WSReadyData)
@@ -88,8 +88,8 @@ type eventParseFunc func(event *WSPayload, message []byte) error
 var EventParseFuncMap = map[OPCode]map[EventType]eventParseFunc{
 	WSDispatchEvent: {
 		//暂且合并
-		EventC2cMessageCreate:     messageHandler,
-		EventGroupAtMessageCreate: messageHandler,
+		EventC2cMessageCreate:     aloneMessageHandler,
+		EventGroupAtMessageCreate: groupAtMessageHandler,
 
 		EventMessageCreate: messageHandler,
 		EventMessageDelete: messageDeleteHandler,
@@ -146,7 +146,7 @@ func messageHandler(payload *WSPayload, message []byte) error {
 }
 
 func aloneMessageHandler(payload *WSPayload, message []byte) error {
-	data := &WSAloneMessage{}
+	data := &WSMessageData{}
 	if err := ParseData(message, data); err != nil {
 		return err
 	}
@@ -156,8 +156,8 @@ func aloneMessageHandler(payload *WSPayload, message []byte) error {
 	return nil
 }
 
-func groupAtMessage(payload *WSPayload, message []byte) error {
-	data := &WSGroupAtMessage{}
+func groupAtMessageHandler(payload *WSPayload, message []byte) error {
+	data := &WSMessageData{}
 	if err := ParseData(message, data); err != nil {
 		return err
 	}

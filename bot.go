@@ -1,4 +1,4 @@
-package main
+package qqbot
 
 import (
 	"github.com/Yyjccc/qqbotsdk/entry"

@@ -67,12 +67,6 @@ type WSReadyData struct {
 //// WSChannelData 子频道 payload
 //type WSChannelData Channel
 
-// 单聊消息 payload
-type WSAloneMessage entry.Message
-
-// 群聊at消息
-type WSGroupAtMessage entry.Message
-
 // WSMessageData 消息 payload //群聊或者私聊
 type WSMessageData entry.Message
 
