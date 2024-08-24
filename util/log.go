@@ -87,8 +87,12 @@ func output(level string, v ...interface{}) {
 }
 
 // DefaultLogger 默认logger
-var DefaultLogger = Logger(new(consoleLogger))
+var DefaultLogger = ConsoleFileLogger{
+	console: FileLogger,
+	file:    ConsoleLogger,
+}
 var FileLogger = Logger(new(fileLogger))
+var ConsoleLogger = Logger(new(consoleLogger))
 
 // Debug log.Debug
 func Debug(v ...interface{}) {
@@ -280,4 +284,55 @@ func addFileToZip(zipWriter *zip.Writer, file string) error {
 	}
 
 	return nil
+}
+
+type ConsoleFileLogger struct {
+	console Logger
+	file    Logger
+}
+
+func (c *ConsoleFileLogger) Debug(v ...interface{}) {
+	c.console.Debug(v...)
+	c.file.Debug(v...)
+}
+
+func (c ConsoleFileLogger) Info(v ...interface{}) {
+	c.console.Info(v...)
+	c.file.Info(v...)
+}
+
+func (c ConsoleFileLogger) Warn(v ...interface{}) {
+	c.console.Warn(v...)
+	c.file.Warn(v...)
+
+}
+
+func (c ConsoleFileLogger) Error(v ...interface{}) {
+	c.console.Error(v...)
+	c.file.Error(v...)
+}
+
+func (c ConsoleFileLogger) Debugf(format string, v ...interface{}) {
+	c.console.Debugf(format, v...)
+	c.file.Debugf(format, v...)
+}
+
+func (c ConsoleFileLogger) Infof(format string, v ...interface{}) {
+	c.console.Infof(format, v...)
+	c.file.Infof(format, v...)
+}
+
+func (c ConsoleFileLogger) Warnf(format string, v ...interface{}) {
+	c.console.Warnf(format, v...)
+	c.file.Warnf(format, v...)
+}
+
+func (c ConsoleFileLogger) Errorf(format string, v ...interface{}) {
+	c.console.Errorf(format, v...)
+	c.file.Errorf(format, v...)
+}
+
+func (c ConsoleFileLogger) Sync() error {
+	c.console.Sync()
+	return c.file.Sync()
 }
