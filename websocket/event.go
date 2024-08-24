@@ -234,12 +234,12 @@ func Register() Intent {
 			DefaultHandlers.AloneMessage = handle
 			DefaultHandlers.GroupAtMessage = handle
 			i = i | EventToIntent(EventC2cMessageCreate) | EventToIntent(EventGroupAtMessageCreate)
-		//case AloneMessageHandler:
-		//	DefaultHandlers.AloneMessage = handle
-		//	i = i | EventToIntent(EventC2cMessageCreate)
-		//case GroupAtMessageHandler:
-		//	DefaultHandlers.GroupAtMessage = handle
-		//	i = i | EventToIntent(EventGroupAtMessageCreate)
+		case AloneMessageHandler:
+			DefaultHandlers.AloneMessage = MessageHandler(handle)
+			i = i | EventToIntent(EventC2cMessageCreate)
+		case GroupAtMessageHandler:
+			DefaultHandlers.GroupAtMessage = MessageHandler(handle)
+			i = i | EventToIntent(EventGroupAtMessageCreate)
 		case ReadyHandler:
 			DefaultHandlers.Ready = handle
 		case ErrorNotifyHandler:

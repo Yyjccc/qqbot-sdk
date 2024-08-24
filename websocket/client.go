@@ -79,7 +79,7 @@ func (c *Client) Listening() error {
 	for {
 		select {
 		case <-resumeSignal: // 使用信号量控制连接立即重连
-			util.Infof("%s, received resumeSignal signal", c.session)
+			//util.Infof("%s, received resumeSignal signal", c.session)
 			return util.ErrNeedReConnect
 		case err := <-c.closeChan:
 			// 关闭连接的错误码 https://bot.q.qq.com/wiki/develop/api/gateway/error/error.html
@@ -99,7 +99,7 @@ func (c *Client) Listening() error {
 			}
 			return err
 		case <-c.heartBeatTicker.C:
-			util.Debugf("%s listened heartBeat", c.session)
+			// util.Debugf("%s listened heartBeat", c.session)
 			heartBeatEvent := &WSPayload{
 				WSPayloadBase: WSPayloadBase{
 					OPCode: WSHeartbeat,
@@ -186,7 +186,7 @@ func (c *Client) readMessageToQueue() {
 			continue
 		}
 		payload.RawMessage = message
-		util.Infof("%s receive %s message, %s", c.session, OPMeans(payload.OPCode), string(message))
+		//util.Infof("%s receive %s message, %s", c.session, OPMeans(payload.OPCode), string(message))
 		// 处理内置的一些事件，如果处理成功，则这个事件不再投递给业务
 		if c.isHandleBuildIn(payload) {
 			continue
@@ -216,7 +216,7 @@ func (c *Client) listenMessageAndHandle() {
 			util.Errorf("%s parseAndHandle failed, %v", c.session, err)
 		}
 	}
-	util.Infof("%s message queue is closed", c.session)
+	//util.Infof("%s message queue is closed", c.session)
 }
 
 func (c *Client) saveSeq(seq uint32) {

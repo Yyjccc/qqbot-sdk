@@ -1,7 +1,10 @@
 package util
 
 import (
+	"archive/zip"
 	"fmt"
+	"io"
+	"os"
 	"path/filepath"
 	"runtime"
 	"strings"
@@ -85,6 +88,7 @@ func output(level string, v ...interface{}) {
 
 // DefaultLogger 默认logger
 var DefaultLogger = Logger(new(consoleLogger))
+var FileLogger = Logger(new(fileLogger))
 
 // Debug log.Debug
 func Debug(v ...interface{}) {
@@ -129,4 +133,151 @@ func Errorf(format string, v ...interface{}) {
 // Sync logger Sync calls to flush buffer
 func Sync() {
 	_ = DefaultLogger.Sync()
+}
+
+var _ Logger = (*fileLogger)(nil)
+
+// fileLogger 实现文件日志记录
+type fileLogger struct {
+	basePath string
+}
+
+// NewFileLogger 创建一个新的 FileLogger 实例
+func NewFileLogger(basePath string) *fileLogger {
+	return &fileLogger{basePath: basePath}
+}
+
+// Debug 日志
+func (f *fileLogger) Debug(v ...interface{}) {
+	f.log("Debug", fmt.Sprint(v...))
+}
+
+// Info 日志
+func (f *fileLogger) Info(v ...interface{}) {
+	f.log("Info", fmt.Sprint(v...))
+}
+
+// Warn 日志
+func (f *fileLogger) Warn(v ...interface{}) {
+	f.log("Warning", fmt.Sprint(v...))
+}
+
+// Error 日志
+func (f *fileLogger) Error(v ...interface{}) {
+	f.log("Error", fmt.Sprint(v...))
+}
+
+// Debugf 格式化 Debug 日志
+func (f *fileLogger) Debugf(format string, v ...interface{}) {
+	f.log("Debug", fmt.Sprintf(format, v...))
+}
+
+// Infof 格式化 Info 日志
+func (f *fileLogger) Infof(format string, v ...interface{}) {
+	f.log("Info", fmt.Sprintf(format, v...))
+}
+
+// Warnf 格式化 Warning 日志
+func (f *fileLogger) Warnf(format string, v ...interface{}) {
+	f.log("Warning", fmt.Sprintf(format, v...))
+}
+
+// Errorf 格式化 Error 日志
+func (f *fileLogger) Errorf(format string, v ...interface{}) {
+	f.log("Error", fmt.Sprintf(format, v...))
+}
+
+// Sync 关闭当前日志文件
+func (f *fileLogger) Sync() error {
+	// No-op in this implementation as logs are written directly
+	return nil
+}
+
+// log 记录日志到文件
+func (f *fileLogger) log(level string, message string) {
+	now := time.Now()
+	date := now.Format("2006-01-02")
+	logFile := filepath.Join(f.basePath, "logs", date+".log")
+
+	// Ensure the log directory exists
+	err := os.MkdirAll(filepath.Dir(logFile), os.ModePerm)
+	if err != nil {
+		fmt.Println("Error creating log directory:", err)
+		return
+	}
+
+	file, err := os.OpenFile(logFile, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		fmt.Println("Error opening log file:", err)
+		return
+	}
+	defer file.Close()
+
+	pc, fileName, line, _ := runtime.Caller(2)
+	funcName := filepath.Ext(runtime.FuncForPC(pc).Name())
+	fileName = filepath.Base(fileName)
+
+	logFormat := "[%s] %s %s:%d:%s %s\n"
+	dateTime := now.Format("2006-01-02 15:04:05")
+	fmt.Fprintf(file, logFormat, level, dateTime, fileName, line, funcName, message)
+}
+
+// RotateLogs 每月压缩上个月的日志文件
+func RotateLogs(basePath string) error {
+	now := time.Now()
+	lastMonth := now.AddDate(0, -1, 0)
+	monthDir := filepath.Join(basePath, "logs")
+	zipFile := filepath.Join(basePath, "logs", "archive", lastMonth.Format("2006-01")+".zip")
+
+	// Ensure the archive directory exists
+	err := os.MkdirAll(filepath.Dir(zipFile), os.ModePerm)
+	if err != nil {
+		return fmt.Errorf("error creating archive directory: %w", err)
+	}
+
+	// Create a new zip file
+	archiveFile, err := os.Create(zipFile)
+	if err != nil {
+		return fmt.Errorf("error creating zip file: %w", err)
+	}
+	defer archiveFile.Close()
+
+	zipWriter := zip.NewWriter(archiveFile)
+	defer zipWriter.Close()
+
+	// Add files to the zip archive
+	files, err := filepath.Glob(filepath.Join(monthDir, lastMonth.Format("2006-01")+".log"))
+	if err != nil {
+		return fmt.Errorf("error finding log files: %w", err)
+	}
+
+	for _, file := range files {
+		err := addFileToZip(zipWriter, file)
+		if err != nil {
+			return fmt.Errorf("error adding file to zip: %w", err)
+		}
+	}
+
+	return nil
+}
+
+// addFileToZip 添加文件到 zip 压缩包
+func addFileToZip(zipWriter *zip.Writer, file string) error {
+	zipFile, err := zipWriter.Create(filepath.Base(file))
+	if err != nil {
+		return err
+	}
+
+	srcFile, err := os.Open(file)
+	if err != nil {
+		return err
+	}
+	defer srcFile.Close()
+
+	_, err = io.Copy(zipFile, srcFile)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
