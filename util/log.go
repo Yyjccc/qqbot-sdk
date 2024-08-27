@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -88,10 +89,10 @@ func output(level string, v ...interface{}) {
 
 // DefaultLogger 默认logger
 var DefaultLogger = ConsoleFileLogger{
-	console: FileLogger,
-	file:    ConsoleLogger,
+	console: ConsoleLogger,
+	file:    FileLogger,
 }
-var FileLogger = Logger(new(fileLogger))
+var FileLogger = NewFileLogger("./")
 var ConsoleLogger = Logger(new(consoleLogger))
 
 // Debug log.Debug
@@ -144,6 +145,7 @@ var _ Logger = (*fileLogger)(nil)
 // fileLogger 实现文件日志记录
 type fileLogger struct {
 	basePath string
+	mu       sync.Mutex
 }
 
 // NewFileLogger 创建一个新的 FileLogger 实例
@@ -210,6 +212,9 @@ func (f *fileLogger) log(level string, message string) {
 		return
 	}
 
+	f.mu.Lock()
+	defer f.mu.Unlock()
+
 	file, err := os.OpenFile(logFile, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		fmt.Println("Error opening log file:", err)
@@ -223,7 +228,10 @@ func (f *fileLogger) log(level string, message string) {
 
 	logFormat := "[%s] %s %s:%d:%s %s\n"
 	dateTime := now.Format("2006-01-02 15:04:05")
-	fmt.Fprintf(file, logFormat, level, dateTime, fileName, line, funcName, message)
+	_, err = fmt.Fprintf(file, logFormat, level, dateTime, fileName, line, funcName, message)
+	if err != nil {
+		fmt.Println("Error writing to log file:", err)
+	}
 }
 
 // RotateLogs 每月压缩上个月的日志文件
@@ -288,48 +296,48 @@ func addFileToZip(zipWriter *zip.Writer, file string) error {
 
 type ConsoleFileLogger struct {
 	console Logger
-	file    Logger
+	file    *fileLogger
 }
 
 func (c *ConsoleFileLogger) Debug(v ...interface{}) {
-	c.console.Debug(v...)
-	c.file.Debug(v...)
+	output("Debug", fmt.Sprint(v...))
+	c.file.log("Debug", fmt.Sprint(v...))
 }
 
 func (c ConsoleFileLogger) Info(v ...interface{}) {
-	c.console.Info(v...)
-	c.file.Info(v...)
+	output("Info", fmt.Sprint(v...))
+	c.file.log("Info", fmt.Sprint(v...))
 }
 
 func (c ConsoleFileLogger) Warn(v ...interface{}) {
-	c.console.Warn(v...)
-	c.file.Warn(v...)
+	output("Warn", fmt.Sprint(v...))
+	c.file.log("Warn", fmt.Sprint(v...))
 
 }
 
 func (c ConsoleFileLogger) Error(v ...interface{}) {
-	c.console.Error(v...)
-	c.file.Error(v...)
+	output("Error", fmt.Sprint(v...))
+	c.file.log("Error", fmt.Sprint(v...))
 }
 
 func (c ConsoleFileLogger) Debugf(format string, v ...interface{}) {
-	c.console.Debugf(format, v...)
-	c.file.Debugf(format, v...)
+	output("Debug", fmt.Sprintf(format, v...))
+	c.file.log("Debug", fmt.Sprintf(format, v...))
 }
 
 func (c ConsoleFileLogger) Infof(format string, v ...interface{}) {
-	c.console.Infof(format, v...)
-	c.file.Infof(format, v...)
+	output("Info", fmt.Sprintf(format, v...))
+	c.file.log("Info", fmt.Sprintf(format, v...))
 }
 
 func (c ConsoleFileLogger) Warnf(format string, v ...interface{}) {
-	c.console.Warnf(format, v...)
-	c.file.Warnf(format, v...)
+	output("Warn", fmt.Sprintf(format, v...))
+	c.file.log("Warn", fmt.Sprintf(format, v...))
 }
 
 func (c ConsoleFileLogger) Errorf(format string, v ...interface{}) {
-	c.console.Errorf(format, v...)
-	c.file.Errorf(format, v...)
+	output("Error", fmt.Sprintf(format, v...))
+	c.file.log("Error", fmt.Sprintf(format, v...))
 }
 
 func (c ConsoleFileLogger) Sync() error {
